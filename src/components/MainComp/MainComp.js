@@ -26,6 +26,7 @@ const styles = StyleSheet.create({
     width: '100%'
   },
   textInput: {
+    color: '#000',
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#eee',
