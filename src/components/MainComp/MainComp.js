@@ -1,16 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Text,
   View,
   Slider,
   Platform,
-  Keyboard,
   TextInput,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
   KeyboardAvoidingView
 } from 'react-native';
+
+const NUM_REGEX = /^\d+$/;
+const behavior = Platform.select({
+  ios: { behavior: 'padding' },
+  android: {}
+});
 
 const styles = StyleSheet.create({
   wrap: {
@@ -41,15 +46,25 @@ const styles = StyleSheet.create({
   },
 });
 
-const behavior = Platform.select({
-  ios: { behavior: 'padding' },
-  android: {}
-});
-
+//не подключал типизацию flow, не успевал :(
 export default function MainComp() {
-  const KeyboardDismiss = () => {
-    Keyboard.dismiss()
-  }
+  const [arg1, setArg1] = useState('0');
+  const [arg2, setArg2] = useState(0);
+  const [result, seResult] = useState('');
+
+  const changeArg1 = amount => {
+    if (NUM_REGEX.test(amount) || amount === '') setArg1(amount);
+  };
+
+  const changeArg2 = amount => {
+    setArg2(Math.round(amount));
+  };
+
+  const getResult = () => {
+    const multiplication = Number(arg1) * arg2;
+
+    seResult(multiplication.toString());
+  };
   
   return (
     <KeyboardAvoidingView {...behavior}>
@@ -57,14 +72,23 @@ export default function MainComp() {
         <View style={styles.row}>
           <TextInput
             autoFocus
+            value={arg1}
             key="textInput"
+            keyboardType="number-pad"
             placeholder="Введите число"
             style={styles.textInput}
+            onChangeText={changeArg1}
           />
         </View>
 
         <View style={styles.row}>
-          <Slider key="sliderInput" onTouchStart={KeyboardDismiss} />
+          <Text>{arg2}</Text>
+          <Slider
+            minimumValue={0}
+            maximumValue={10}
+            key="sliderInput"
+            onValueChange={changeArg2}
+          />
         </View>
 
         <View style={styles.row}>
@@ -72,7 +96,7 @@ export default function MainComp() {
             key="button"
             activeOpacity={0.5}
             style={styles.button}
-            onPress={KeyboardDismiss}
+            onPress={getResult}
           >
             <Text style={styles.buttonText}>Посчитать</Text>
           </TouchableOpacity>
@@ -81,6 +105,7 @@ export default function MainComp() {
         <View style={styles.row}>
           <Text>Итог:</Text>
           <TextInput
+            value={result}
             key="textResult"
             editable={false}
             style={styles.textInput}
